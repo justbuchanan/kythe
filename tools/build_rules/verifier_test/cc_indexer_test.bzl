@@ -26,6 +26,7 @@ load(
     "extract",
     "verifier_test",
 )
+load(":xlang_proto_verifier_test.bzl", "xlang_proto_verifier_test")
 
 UNSUPPORTED_FEATURES = [
     "thin_lto",
@@ -750,4 +751,97 @@ def cc_extractor_test(
         opts = ["--ignore_dups"],
         restricted_to = restricted_to,
         tags = tags,
+    )
+
+
+def _generate_cc_proto_impl(ctx):
+    # Generate the cc protocol buffer sources into a directory.
+    # Note: out contains .meta files with annotations for cross-language xrefs.
+    out = ctx.actions.declare_directory(ctx.label.name)
+    protoc = ctx.executable._protoc
+    ctx.actions.run_shell(
+        outputs = [out],
+        inputs = ctx.files.srcs,
+        tools = [protoc],
+        command = "\n".join([
+            "#/bin/bash",
+            "set -e",
+            # Creating the declared directory in this action is necessary for
+            # remote execution environments.  This differs from local execution
+            # where Bazel will create the directory before this action is
+            # executed.
+            "mkdir -p " + out.path,
+            " ".join([
+                protoc.path,
+                # "--java_out=annotate_code:" + out.path,
+            "--cpp_out=annotate_headers=true," + "annotation_pragma_name=pragma_name",# + "annotation_guard_name=guard_name:"
+            ] + [src.path for src in ctx.files.srcs]),
+        ]),
+    )
+
+    # List the Java sources in a files for the javac_extractor to take as a @params file.
+    files = ctx.actions.declare_file(ctx.label.name + ".files")
+    ctx.actions.run_shell(
+        outputs = [files],
+        inputs = [out],
+        command = "find " + out.path + " -name '*.cc' -o -name '*.h' >" + files.path,
+    )
+
+    # # Produce a source jar file for the native Java compilation in the java_extract_kzip rule.
+    # # Note: we can't use java_common.pack_sources because our input is a directory.
+    # singlejar = ctx.attr._java_toolchain.java_toolchain.single_jar
+    # srcjar = ctx.actions.declare_file(ctx.label.name + ".srcjar")
+    # ctx.actions.run(
+    #     outputs = [srcjar],
+    #     inputs = [out, files],
+    #     executable = singlejar,
+    #     arguments = ["--output", srcjar.path, "--resources", "@" + files.path],
+    # )
+
+    return [
+        DefaultInfo(files = depset([files, out])),
+        # KytheJavaParamsInfo(dir = out, params = files, srcjar = srcjar),
+    ]
+
+_generate_cc_proto = rule(
+    attrs = {
+        "srcs": attr.label_list(
+            mandatory = True,
+            allow_files = True,
+            providers = [JavaInfo],
+        ),
+        "_protoc": attr.label(
+            default = Label("@com_google_protobuf//:protoc"),
+            executable = True,
+            cfg = "host",
+        ),
+        "_java_toolchain": attr.label(
+            default = Label("@bazel_tools//tools/jdk:current_java_toolchain"),
+        ),
+    },
+    implementation = _generate_cc_proto_impl,
+)
+
+def cc_proto_verifier_test(
+        name,
+        srcs,
+        size = "small",
+        proto_srcs = [],
+        tags = [],
+        cc_extractor_opts = [],
+        verifier_opts = ["--ignore_dups"],
+        vnames_config = None,
+        visibility = None):
+    xlang_proto_verifier_test(
+        name = name,
+        srcs = srcs,
+        size = size,
+        proto_srcs = proto_srcs,
+        genlang_extractor_opts = cc_extractor_opts,
+        visibility = visibility,
+        vnames_config = vnames_config,
+        verifier_opts = verifier_opts,
+        build_annotated_generated_code_rule = _generate_cc_proto,
+        genlang_extract_rule = cc_extract_kzip,
+        genlang_indexer = "//kythe/cxx/indexer/cxx:indexer",
     )

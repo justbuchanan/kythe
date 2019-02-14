@@ -40,6 +40,7 @@ def xlang_proto_verifier_test(
       proto_srcs: The compilation's proto source files; each file's verifier goals will be checked
       verifier_opts: List of options passed to the verifier tool
       vnames_config: Optional path to a VName configuration file
+      TODO: more docs
 
     Returns: the label of the test.
     """
