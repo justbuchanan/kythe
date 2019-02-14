@@ -774,7 +774,7 @@ def _generate_cc_proto_impl(ctx):
             " ".join([
                 protoc.path,
                 # "--java_out=annotate_code:" + out.path,
-            "--cpp_out=annotate_headers=true," + "annotation_pragma_name=pragma_name",# + "annotation_guard_name=guard_name:"
+            "--cpp_out=annotate_headers=true:" + out.path,# + "annotation_guard_name=guard_name:"
             ] + [src.path for src in ctx.files.srcs]),
         ]),
     )
@@ -784,7 +784,7 @@ def _generate_cc_proto_impl(ctx):
     ctx.actions.run_shell(
         outputs = [files],
         inputs = [out],
-        command = "find " + out.path + " -name '*.cc' -o -name '*.h' >" + files.path,
+        command = "find " + out.path + " -name '*.cc' >" + files.path,
     )
 
     # # Produce a source jar file for the native Java compilation in the java_extract_kzip rule.
@@ -808,7 +808,7 @@ _generate_cc_proto = rule(
         "srcs": attr.label_list(
             mandatory = True,
             allow_files = True,
-            providers = [JavaInfo],
+            providers = [CcInfo],
         ),
         "_protoc": attr.label(
             default = Label("@com_google_protobuf//:protoc"),
