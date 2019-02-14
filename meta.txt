@@ -1,0 +1,37 @@
+{	# (proto2.GeneratedCodeInfo) size=634B
+  annotation: {	# (proto2.GeneratedCodeInfo.Annotation) size=99B
+    source_file: "kythe/javatests/com/google/devtools/kythe/analyzers/java/testdata/pkg/proto/testdata2.proto"	# size=91; fp64=6e37e675b8af6df8; fp2011=fcc56e22f9853097
+    begin      : 295
+    end: 304
+  }	# annotation[0]
+  annotation: {	# (proto2.GeneratedCodeInfo.Annotation) size=103B
+    path       : [ 4, 0 ]
+    source_file: "kythe/javatests/com/google/devtools/kythe/analyzers/java/testdata/pkg/proto/testdata2.proto"	# size=91; fp64=6e37e675b8af6df8; fp2011=fcc56e22f9853097
+    begin      : 733
+    end: 754
+  }	# annotation[1]
+  annotation: {	# (proto2.GeneratedCodeInfo.Annotation) size=103B
+    path       : [ 4, 0 ]
+    source_file: "kythe/javatests/com/google/devtools/kythe/analyzers/java/testdata/pkg/proto/testdata2.proto"	# size=91; fp64=6e37e675b8af6df8; fp2011=fcc56e22f9853097
+    begin      : 1116
+    end: 1128
+  }	# annotation[2]
+  annotation: {	# (proto2.GeneratedCodeInfo.Annotation) size=105B
+    path       : [ 4, 1 ]
+    source_file: "kythe/javatests/com/google/devtools/kythe/analyzers/java/testdata/pkg/proto/testdata2.proto"	# size=91; fp64=6e37e675b8af6df8; fp2011=fcc56e22f9853097
+    begin      : 17751
+    end: 17776
+  }	# annotation[3]
+  annotation: {	# (proto2.GeneratedCodeInfo.Annotation) size=105B
+    path       : [ 4, 1 ]
+    source_file: "kythe/javatests/com/google/devtools/kythe/analyzers/java/testdata/pkg/proto/testdata2.proto"	# size=91; fp64=6e37e675b8af6df8; fp2011=fcc56e22f9853097
+    begin      : 18100
+    end: 18116
+  }	# annotation[4]
+  annotation: {	# (proto2.GeneratedCodeInfo.Annotation) size=107B
+    path       : [ 4, 1, 6, 0 ]
+    source_file: "kythe/javatests/com/google/devtools/kythe/analyzers/java/testdata/pkg/proto/testdata2.proto"	# size=91; fp64=6e37e675b8af6df8; fp2011=fcc56e22f9853097
+    begin      : 33453
+    end: 33474
+  }	# annotation[5]
+}
