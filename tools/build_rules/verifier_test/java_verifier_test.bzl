@@ -19,10 +19,7 @@ load(
     "index_compilation",
     "verifier_test",
 )
-load(
-    "@io_kythe_lang_proto//kythe/cxx/indexer/proto/testdata:proto_verifier_test.bzl",
-    "proto_extract_kzip",
-)
+load(":xlang_proto_verifier_test.bzl", "xlang_proto_verifier_test")
 
 KytheJavaParamsInfo = provider(
     doc = "Java source jar unpacked into parameters file.",
@@ -297,75 +294,20 @@ def java_proto_verifier_test(
         verifier_opts = ["--ignore_dups"],
         vnames_config = None,
         visibility = None):
-    """Verify cross-language references between Java and Proto.
-
-    Args:
-      name: Name of the test.
-      size: Size of the test.
-      tags: Test target tags.
-      visibility: Visibility of the test target.
-      srcs: The compilation's Java source files; each file's verifier goals will be checked
-      proto_srcs: The compilation's proto source files; each file's verifier goals will be checked
-      verifier_opts: List of options passed to the verifier tool
-      vnames_config: Optional path to a VName configuration file
-
-    Returns: the label of the test.
-    """
-    proto_kzip = _invoke(
-        proto_extract_kzip,
-        name = name + "_proto_kzip",
-        srcs = proto_srcs,
-        tags = tags,
-        visibility = visibility,
-        vnames_config = vnames_config,
-    )
-    proto_entries = _invoke(
-        index_compilation,
-        name = name + "_proto_entries",
-        testonly = True,
-        indexer = "@io_kythe_lang_proto//kythe/cxx/indexer/proto:indexer",
-        opts = ["--index_file"],
-        tags = tags,
-        visibility = visibility,
-        deps = [proto_kzip],
-    )
-
-    _generate_java_proto(
-        name = name + "_gensrc",
-        srcs = proto_srcs,
-    )
-
-    kzip = _invoke(
-        java_extract_kzip,
-        name = name + "_java_kzip",
-        srcs = srcs + [":" + name + "_gensrc"],
-        opts = java_extractor_opts,
-        tags = tags,
-        visibility = visibility,
-        vnames_config = vnames_config,
-        deps = [
+    xlang_proto_verifier_test(
+        name = name,
+        srcs = srcs,
+        size = size,
+        proto_srcs = proto_srcs,
+        genlang_extractor_opts = java_extractor_opts,
+        genlang_extractor_deps = [
             "@com_google_protobuf//:protobuf_java",
             "@javax_annotation_jsr250_api//jar",
         ],
-    )
-
-    entries = _invoke(
-        index_compilation,
-        name = name + "_java_entries",
-        testonly = True,
-        indexer = "//kythe/java/com/google/devtools/kythe/analyzers/java:indexer",
-        opts = ["--verbose"],
-        tags = tags,
         visibility = visibility,
-        deps = [kzip],
-    )
-    return _invoke(
-        verifier_test,
-        name = name,
-        size = size,
-        srcs = [entries, proto_entries] + proto_srcs,
-        opts = verifier_opts,
-        tags = tags,
-        visibility = visibility,
-        deps = [entries],
+        vnames_config = vnames_config,
+        verifier_opts = verifier_opts,
+        build_annotated_generated_code_rule = _generate_java_proto,
+        genlang_extract_rule = java_extract_kzip,
+        genlang_indexer = "//kythe/java/com/google/devtools/kythe/analyzers/java:indexer",
     )
