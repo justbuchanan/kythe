@@ -143,14 +143,16 @@ def extract(
     inputs = srcs + [d.files if hasattr(d, 'files') else d for d in deps]
 
     for d in deps:
+        print("EXTRACT DEP: {}".format(d))
         if hasattr(d, 'hdrs'):
             print("HEADERS" + d.hdrs)
         else:
             print("no headeres")
 
-        if not type(d) == :
-            if CcInfo in d:
-                print("CC INFO")
+        # if not type(d) == :
+        if CcInfo in d:
+            print("CC INFO")
+            d[CcInfo].compilation_context.headers
 
     if vnames_config:
         env["KYTHE_VNAMES"] = vnames_config.path
