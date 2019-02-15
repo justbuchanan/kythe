@@ -140,19 +140,35 @@ def extract(
         "KYTHE_OUTPUT_FILE": kzip.path,
         "KYTHE_ROOT_DIRECTORY": ".",
     }
-    inputs = srcs + deps
+    inputs = srcs + [d.files if hasattr(d, 'files') else d for d in deps]
+
+    for d in deps:
+        if hasattr(d, 'hdrs'):
+            print("HEADERS" + d.hdrs)
+        else:
+            print("no headeres")
+
+        if not type(d) == :
+            if CcInfo in d:
+                print("CC INFO")
+
     if vnames_config:
         env["KYTHE_VNAMES"] = vnames_config.path
         inputs += [vnames_config]
-    ctx.actions.run(
+    print("extract() inputs: {}".format(inputs))
+    # print("extract() inputs[2].path: {}".format(inputs[2].path))
+    # print("extract() inputs[2].root: {}".format(inputs[2].root.path))
+    for d in deps:
+        print("DEP: " + str(d))
+    ctx.actions.run_shell(
         inputs = inputs,
         tools = [extractor],
         outputs = [kzip],
         mnemonic = mnemonic,
-        executable = extractor,
-        arguments = (
-            [ctx.expand_location(o) for o in opts] +
-            [src.path for src in srcs]
+        # executable = extractor,
+        command = (
+            "tree && ls kythe/cxx/indexer/cxx/testdata/proto && " + extractor.path + " -I" + inputs[1].root.path + " " + " ".join([ctx.expand_location(o) for o in opts] +
+            [src.path for src in srcs]) + " && echo 'PATH: " + " ".join([d.path for d in deps]) + "'"
         ),
         env = env,
     )

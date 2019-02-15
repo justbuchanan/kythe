@@ -143,6 +143,8 @@ def _cc_extract_kzip_impl(ctx):
         toolchain_includes = cpp.built_in_include_directories
     else:
         toolchain_includes = []
+    print("CTX.OUTPUTS: {}".format(ctx.outputs))
+    print("CTX.DEPS" + str(ctx.files.deps))
     outputs = depset([
         extract(
             ctx = ctx,
@@ -178,11 +180,12 @@ cc_extract_kzip = rule(
             doc = "A list of C++ source files to extract.",
             mandatory = True,
             allow_empty = False,
-            allow_files = [
-                ".cc",
-                ".c",
-                ".h",
-            ],
+            allow_files=True,
+            # allow_files = [
+            #     ".cc",
+            #     ".c",
+            #     ".h",
+            # ],
         ),
         "copts": attr.string_list(
             doc = """Options which are required to compile/index the sources.
@@ -210,16 +213,17 @@ cc_extract_kzip = rule(
             may be used for dependencies which are required for an eventual
             Kythe index, but should not be extracted here.
             """,
-            allow_files = [
-                ".cc",
-                ".c",
-                ".h",
-                ".meta",  # Cross language metadata files.
-            ],
-            providers = [
-                [KytheEntries],
-                [CxxCompilationUnits],
-            ],
+            # allow_files = [
+            #     ".cc",
+            #     ".c",
+            #     ".h",
+            #     ".meta",  # Cross language metadata files.
+            # ],
+            allow_files=True,
+            # providers = [
+            #     [KytheEntries],
+            #     [CxxCompilationUnits],
+            # ],
         ),
         # Do not add references, temporary attribute for find_cpp_toolchain.
         "_cc_toolchain": attr.label(
@@ -757,10 +761,13 @@ def cc_extractor_test(
 def _generate_cc_proto_impl(ctx):
     # Generate the cc protocol buffer sources into a directory.
     # Note: out contains .meta files with annotations for cross-language xrefs.
-    out = ctx.actions.declare_directory(ctx.label.name)
+    # out = ctx.actions.declare_directory(ctx.label.name)
+    pbh =     ctx.actions.declare_file("testdata.pb.h")
+    pbhmeta = ctx.actions.declare_file("testdata.pb.h.meta")
+    pbcc =    ctx.actions.declare_file("testdata.pb.cc")
     protoc = ctx.executable._protoc
     ctx.actions.run_shell(
-        outputs = [out],
+        outputs = [pbh, pbcc, pbhmeta],
         inputs = ctx.files.srcs,
         tools = [protoc],
         command = "\n".join([
@@ -770,37 +777,21 @@ def _generate_cc_proto_impl(ctx):
             # remote execution environments.  This differs from local execution
             # where Bazel will create the directory before this action is
             # executed.
-            "mkdir -p " + out.path,
             " ".join([
                 protoc.path,
-                # "--java_out=annotate_code:" + out.path,
-            "--cpp_out=annotate_headers=true:" + out.path,# + "annotation_guard_name=guard_name:"
+            "--cpp_out=annotate_headers=true:bazel-out/k8-fastbuild/bin/",# + "annotation_guard_name=guard_name:"
             ] + [src.path for src in ctx.files.srcs]),
+            "tree",
         ]),
     )
 
-    # List the Java sources in a files for the javac_extractor to take as a @params file.
-    files = ctx.actions.declare_file(ctx.label.name + ".files")
-    ctx.actions.run_shell(
-        outputs = [files],
-        inputs = [out],
-        command = "find " + out.path + " -name '*.cc' >" + files.path,
-    )
-
-    # # Produce a source jar file for the native Java compilation in the java_extract_kzip rule.
-    # # Note: we can't use java_common.pack_sources because our input is a directory.
-    # singlejar = ctx.attr._java_toolchain.java_toolchain.single_jar
-    # srcjar = ctx.actions.declare_file(ctx.label.name + ".srcjar")
-    # ctx.actions.run(
-    #     outputs = [srcjar],
-    #     inputs = [out, files],
-    #     executable = singlejar,
-    #     arguments = ["--output", srcjar.path, "--resources", "@" + files.path],
-    # )
-
+    rf = ctx.runfiles([pbh, pbhmeta, pbcc])
     return [
-        DefaultInfo(files = depset([files, out])),
-        # KytheJavaParamsInfo(dir = out, params = files, srcjar = srcjar),
+        DefaultInfo(
+            files = depset([pbh, pbhmeta, pbcc]),
+            data_runfiles=rf,
+            # runfiles=rf,
+            )
     ]
 
 _generate_cc_proto = rule(
@@ -814,9 +805,6 @@ _generate_cc_proto = rule(
             default = Label("@com_google_protobuf//:protoc"),
             executable = True,
             cfg = "host",
-        ),
-        "_java_toolchain": attr.label(
-            default = Label("@bazel_tools//tools/jdk:current_java_toolchain"),
         ),
     },
     implementation = _generate_cc_proto_impl,
@@ -844,4 +832,5 @@ def cc_proto_verifier_test(
         build_annotated_generated_code_rule = _generate_cc_proto,
         genlang_extract_rule = cc_extract_kzip,
         genlang_indexer = "//kythe/cxx/indexer/cxx:indexer",
+        genlang_extractor_deps=["@com_google_protobuf//:protobuf"],
     )

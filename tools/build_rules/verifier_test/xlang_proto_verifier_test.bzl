@@ -25,6 +25,7 @@ def xlang_proto_verifier_test(
         proto_srcs = [],
         tags = [],
         genlang_extractor_opts = [],
+        genlang_indexer_opts=[],
         verifier_opts = ["--ignore_dups"],
         genlang_extractor_deps = [],
         vnames_config = None,
@@ -72,12 +73,12 @@ def xlang_proto_verifier_test(
     kzip = _invoke(
         genlang_extract_rule,
         name = name + "_genlang_kzip",
-        srcs = srcs + [gensrc],
+        srcs = srcs,
         opts = genlang_extractor_opts,
         tags = tags,
         visibility = visibility,
         vnames_config = vnames_config,
-        deps = genlang_extractor_deps,
+        deps = [gensrc] + genlang_extractor_deps,
     )
 
     entries = _invoke(
@@ -85,7 +86,7 @@ def xlang_proto_verifier_test(
         name = name + "_genlang_entries",
         testonly = True,
         indexer = genlang_indexer,
-        opts = ["--verbose"],
+        opts = genlang_indexer_opts,
         tags = tags,
         visibility = visibility,
         deps = [kzip],

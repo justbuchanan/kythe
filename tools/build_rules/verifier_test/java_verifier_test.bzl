@@ -36,9 +36,7 @@ def _invoke(rulefn, name, **kwargs):
     return "//{}:{}".format(native.package_name(), name)
 
 def _java_extract_kzip_impl(ctx):
-    deps = []
-    for dep in ctx.attr.deps:
-        deps += [dep[JavaInfo]]
+    deps = [dep[JavaInfo] for dep in ctx.attr.deps]
 
     srcs = []
     srcjars = []
@@ -304,6 +302,7 @@ def java_proto_verifier_test(
             "@com_google_protobuf//:protobuf_java",
             "@javax_annotation_jsr250_api//jar",
         ],
+        genlang_indexer_opts=['--verbose'],
         visibility = visibility,
         vnames_config = vnames_config,
         verifier_opts = verifier_opts,
