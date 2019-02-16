@@ -149,10 +149,15 @@ def extract(
         else:
             print("no headeres")
 
-        # if not type(d) == :
-        if CcInfo in d:
+        print("DEP TYPE: " + type(d))
+
+        if type(d) != "File" and CcInfo in d:
             print("CC INFO")
-            d[CcInfo].compilation_context.headers
+            print(d[CcInfo])
+            print(d[CcInfo].compilation_context)
+            print(d[CcInfo].compilation_context.headers)
+        else:
+            print("  {} is a file".format(d))
 
     if vnames_config:
         env["KYTHE_VNAMES"] = vnames_config.path
@@ -169,7 +174,7 @@ def extract(
         mnemonic = mnemonic,
         # executable = extractor,
         command = (
-            "tree && ls kythe/cxx/indexer/cxx/testdata/proto && " + extractor.path + " -I" + inputs[1].root.path + " " + " ".join([ctx.expand_location(o) for o in opts] +
+            "tree && ls  kythe/cxx/indexer/cxx/testdata/proto && " + extractor.path + " -I" + inputs[1].root.path + " " + " ".join([ctx.expand_location(o) for o in opts] +
             [src.path for src in srcs]) + " && echo 'PATH: " + " ".join([d.path for d in deps]) + "'"
         ),
         env = env,

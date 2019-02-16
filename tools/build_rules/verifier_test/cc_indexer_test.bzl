@@ -180,12 +180,12 @@ cc_extract_kzip = rule(
             doc = "A list of C++ source files to extract.",
             mandatory = True,
             allow_empty = False,
-            allow_files=True,
-            # allow_files = [
-            #     ".cc",
-            #     ".c",
-            #     ".h",
-            # ],
+            # allow_files=True,
+            allow_files = [
+                ".cc",
+                ".c",
+                ".h",
+            ],
         ),
         "copts": attr.string_list(
             doc = """Options which are required to compile/index the sources.
@@ -220,10 +220,12 @@ cc_extract_kzip = rule(
             #     ".meta",  # Cross language metadata files.
             # ],
             allow_files=True,
-            # providers = [
-            #     [KytheEntries],
-            #     [CxxCompilationUnits],
-            # ],
+            providers = [
+                [KytheEntries],
+                [CxxCompilationUnits],
+                [CcInfo],
+                [DefaultInfo],
+            ],
         ),
         # Do not add references, temporary attribute for find_cpp_toolchain.
         "_cc_toolchain": attr.label(
