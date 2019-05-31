@@ -30,6 +30,7 @@ genrule(
     srcs = [
         "release.BUILD",
         "release.WORKSPACE",
+        "external.bzl",
         ":bazel_cxx_extractor",
         ":bazel_extract_kzip",
         ":bazel_go_extractor",
@@ -67,6 +68,7 @@ genrule(
         "$(locations misc)",
         "--cp $(location release.BUILD) BUILD",
         "--cp $(location release.WORKSPACE) WORKSPACE",
+        "--cp $(location external.bzl) external.bzl",
         "--cp $(location java_indexer) indexers/java_indexer.jar",
         "--cp $(location jvm_indexer) indexers/jvm_indexer.jar",
         "--cp $(location cxx_indexer) indexers/cxx_indexer",
