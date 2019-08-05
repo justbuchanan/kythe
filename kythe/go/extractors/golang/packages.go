@@ -147,6 +147,13 @@ func buildContextEnv(bc build.Context) ([]string, error) {
 }
 
 func (e *Extractor) listPackages(query ...string) ([]*jsonPackage, error) {
+	fmt.Printf("Extractor.listPackages: ")
+	for _, q := range query {
+		fmt.Printf(q)
+		fmt.Printf(" ")
+	}
+	fmt.Printf("\n")
+
 	// TODO(schroederc): support GOPACKAGESDRIVER
 	args := append([]string{"list",
 		"-compiler=" + e.BuildContext.Compiler,

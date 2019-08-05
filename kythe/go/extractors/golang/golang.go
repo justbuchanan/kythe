@@ -102,6 +102,7 @@ type Extractor struct {
 // addPackage imports the specified package, if it has not already been
 // imported, and returns its package value.
 func (e *Extractor) addPackage(importPath, localPath string) (*build.Package, error) {
+	log.Printf("Extractor.addPackage(%s, %s)\n", importPath, localPath)
 	if bp := e.pmap[importPath]; bp != nil {
 		return bp, nil
 	}
@@ -123,6 +124,7 @@ func (e *Extractor) mapPackage(importPath string, bp *build.Package) {
 
 // readFile reads the contents of path as resolved through the extracted settings.
 func (e *Extractor) readFile(ctx context.Context, path string) ([]byte, error) {
+	log.Printf("Extractor.readFile(%s)\n", path)
 	data, err := vfs.ReadFile(ctx, path)
 	if err != nil {
 		// If there's an alternative installation path, and this is a path that
@@ -199,6 +201,7 @@ func (e *Extractor) dirToImport(dir string) (string, error) {
 //
 // Note: multiple packages may be resolved for "/..." import paths
 func (e *Extractor) Locate(importPath string) ([]*Package, error) {
+	log.Printf("Extractor.Locate(%s)\n", importPath)
 	listedPackages, listErr := e.listPackages(importPath)
 
 	var pkgs []*Package
@@ -262,6 +265,7 @@ func (e *Extractor) Extract() error {
 	var err error
 	for _, pkg := range e.Packages {
 		if pkg.DepOnly {
+			log.Printf("Skipping extract of deponly pkg: %s\n", pkg.Path)
 			continue
 		}
 		pkg.Err = pkg.Extract()

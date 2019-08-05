@@ -131,6 +131,7 @@ func main() {
 		}
 	}
 	for _, path := range flag.Args() {
+		log.Printf("Examining path: %s\n", path)
 		pkgs, err := locate(path)
 		if err != nil {
 			maybeFatal("Error locating %q: %v", path, err)
