@@ -36,11 +36,10 @@ extractors, and tools directly supported by the Kythe team.
    - http_server              :: HTTP server for Kythe service APIs (xrefs, filetree, graph)
    - indexpack                :: Converts between .kindex archives and indexpacks
    - kythe                    :: CLI for the service APIs exposed by http_server
-   - kzip                     :: Utility to manipulate .kzip archives
+   - kzip                     :: Utility to manipulate and view .kzip archives
    - read_entries             :: Dumps a GraphStore's contents as an entry stream
    - triples                  :: Converts an entry stream (or GraphStore) to N-Triples
    - verifier                 :: Verifies indexer outputs with source-inlined goals
-   - viewindex                :: Dumps a .kindex file as JSON
    - write_entries            :: Writes an entry stream to a GraphStore
    - write_tables             :: Processes a GraphStore into efficient serving tables for http_server
 

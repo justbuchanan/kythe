@@ -20,10 +20,10 @@ def asciidoc_with_verifier(name, src, tags = None):
             "java-schema-file-data-template.FileData",
             "java-schema-unit-template.CompilationUnit",
             "//kythe/cxx/indexer/cxx:indexer",
+            "//kythe/cxx/tools:kindex_tool",
             "//kythe/go/indexer/cmd/go_example:go_example",
             "//kythe/go/platform/tools/shasum_tool",
             "//kythe/java/com/google/devtools/kythe/analyzers/java:indexer",
-            "//kythe/cxx/tools:kindex_tool",
             "//kythe/cxx/verifier",
         ],
         tags = tags,
@@ -37,7 +37,7 @@ def build_example_sh():
         "CXX_INDEXER_BIN": "//kythe/cxx/indexer/cxx:indexer",
         "GO_INDEXER_BIN": "//kythe/go/indexer/cmd/go_example:go_example",
         "JAVA_INDEXER_BIN": "//kythe/java/com/google/devtools/kythe/analyzers/java:indexer",
-        "KINDEX_TOOL_BIN": "//kythe/cxx/tools:kindex_tool",
+        "KINDEX_TOOL_BIN": "//kythe/cxx/tools:kindex_tool", # TODO(justbuchanan): remove
         "SHASUM_TOOL": "//kythe/go/platform/tools/shasum_tool:shasum_tool",
         "VERIFIER_BIN": "//kythe/cxx/verifier",
     }

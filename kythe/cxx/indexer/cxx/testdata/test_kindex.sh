@@ -40,3 +40,6 @@ cat "${OUT_DIR}/kindex_repo_test.entries" \
 cat "${OUT_DIR}/windows_test.entries" \
     | "${VERIFIER}" --nocheck_for_singletons --nofile_vnames \
       "${BASE_DIR}/windows_test.verify"
+
+
+# TODO(justbuchanan): delete or convert to kzip

@@ -222,7 +222,7 @@ func TestExtractToFile(t *testing.T) {
 	}
 	t.Logf("Got unit digest %q from writing", digest)
 	if err := w.Close(); err != nil {
-		t.Fatalf("Closing kxip writer: %v", err)
+		t.Fatalf("Closing kzip writer: %v", err)
 	}
 
 	var numUnits int

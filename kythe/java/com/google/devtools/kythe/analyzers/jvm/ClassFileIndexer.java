@@ -64,9 +64,9 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 /**
- * Kythe analyzer for JVM class files (possibly within a jar or kindex file).
+ * Kythe analyzer for JVM class files (possibly within a jar or kzip file).
  *
- * <p>Usage: class_file_indexer <class_file | jar_file | kindex_file> ...
+ * <p>Usage: class_file_indexer <class_file | jar_file | kzip_file> ...
  */
 public class ClassFileIndexer {
   private static final FluentLogger logger = FluentLogger.forEnclosingClass();
@@ -231,7 +231,7 @@ public class ClassFileIndexer {
   }
 
   private static class StandaloneConfig extends IndexerConfig {
-    @Parameter(description = "<jar|class|kindex files to analyze>", required = true)
+    @Parameter(description = "<jar|class|kzip files to analyze>", required = true)
     private List<String> filesToIndex = new ArrayList<>();
 
     @Parameter(

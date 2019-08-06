@@ -36,3 +36,5 @@ find . \
   && \
   chmod 644 "$D/cc_lib.xa"
 popd
+
+# TODO(justbuchanan): make this test run on ci

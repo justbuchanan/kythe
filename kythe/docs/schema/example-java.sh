@@ -39,7 +39,7 @@ tee "$TEST_FILE.orig" > "$TEST_FILE"
 FILE_SHA=$($SHASUM_TOOL "${TEST_FILE}.orig" | cut -c 1-64)
 
 # Convert to ascii proto format; escape backslashes, quotes, and newlines.
-python <<EOF > "${TEST_FILE}.FileData"
+python2 <<EOF > "${TEST_FILE}.FileData"
 print "content: '%s'" % open('${TEST_FILE}').read().encode('string_escape')
 EOF
 

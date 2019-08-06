@@ -56,7 +56,7 @@ find . \
 popd
 
 bazel build \
-  --experimental_action_listener=//kythe/cxx/extractor:extract_kindex \
+  --experimental_action_listener=//kythe/extractors:extract_kzip_cxx \
   --experimental_extra_action_top_level_only \
   --experimental_proto_extra_actions \
   //kythe/examples/proto:proto_user
@@ -76,3 +76,6 @@ cat "${D}/proto_user.entries" "${D}/proto.entries" |
     ./bazel-bin/kythe/cxx/verifier/verifier --ignore_dups \
         kythe/examples/proto/example.proto \
         kythe/examples/proto/proto_user.cc
+
+
+# TODO(justinbuchanan): run this test on ci

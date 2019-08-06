@@ -148,7 +148,7 @@ func copyDir(args copyArgs) error {
 	})
 }
 
-// Extractor is the interface for handling kindex generation on repos.
+// Extractor is the interface for handling kzip generation on repos.
 //
 // ExtractRepo takes an input repo, output path to a directory, and optional
 // kythe.proto.ExtractionConfiguration file path, and performs kythe extraction
