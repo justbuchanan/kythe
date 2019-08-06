@@ -487,11 +487,13 @@ func (p *Package) addFiles(cu *apb.CompilationUnit, root, base string, names []s
 			path = filepath.Join(base, name)
 		}
 		trimmed := strings.TrimPrefix(path, root+"/")
+		fmt.Printf("@ addFiles, path=%s, root=%s, trimmed = %s\n", path, root, trimmed)
 		vn := &spb.VName{
 			Corpus: p.ext.DefaultCorpus,
 			Path:   trimmed,
 		}
 		if vn.Corpus == "" {
+			fmt.Println("@ addFiles, No default corpus")
 			// If no default corpus is specified, use the package's corpus for each of
 			// its files.  The package corpus is based on the rules in
 			// kythe/go/extractors/govname and is usually the package's
@@ -499,6 +501,7 @@ func (p *Package) addFiles(cu *apb.CompilationUnit, root, base string, names []s
 			vn.Corpus = p.VName.Corpus
 			components := strings.SplitN(vn.Path, string(filepath.Separator), 2)
 			vn.Path = strings.TrimPrefix(components[1], p.CorpusRoot+"/")
+			fmt.Printf("@ addFiles, components = %v\n", components)
 			if components[0] != "src" {
 				vn.Root = components[0]
 			}
