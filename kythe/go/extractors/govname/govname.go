@@ -21,6 +21,7 @@ package govname // import "kythe.io/kythe/go/extractors/govname"
 import (
 	"go/build"
 	"path/filepath"
+	"log"
 	"strings"
 
 	"golang.org/x/tools/go/vcs"
@@ -200,6 +201,7 @@ func RepoRoot(importPath string) (*vcs.RepoRoot, error) {
 	if err != nil {
 		return nil, err
 	}
+	log.Printf("@ RepoRoot(), RepoRootForImportPath(%s) -> %s", importPath, r.Root)
 	repoRootCache.add(strings.Split(r.Root, "/"), r)
 	return r, nil
 }

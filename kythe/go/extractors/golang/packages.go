@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"go/build"
 	"os"
 	"os/exec"
@@ -37,6 +38,7 @@ type jsonPackage struct {
 	Root       string
 	Export     string
 	Goroot     bool
+	Module *jsonModule
 
 	GoFiles      []string
 	CFiles       []string
@@ -70,6 +72,21 @@ type jsonPackage struct {
 	Error *jsonPackageError
 }
 
+    type jsonModule struct {
+        Path     string       // module path
+        // Version  string       // module version
+        // Versions []string     // available module versions (with -versions)
+        // Replace  *Module      // replaced by this module
+        // Time     *time.Time   // time version was created
+        // Update   *Module      // available update, if any (with -u)
+        // Main     bool         // is this the main module?
+        // Indirect bool         // is this module only an indirect dependency of main module?
+        Dir      string       // directory holding files for this module, if any
+        GoMod    string       // path to go.mod file for this module, if any
+        // Error    *ModuleError // error loading module
+    }
+
+
 func (pkg *jsonPackage) buildPackage() *build.Package {
 	bp := &build.Package{
 		Dir:        pkg.Dir,
@@ -79,6 +96,7 @@ func (pkg *jsonPackage) buildPackage() *build.Package {
 		Root:       pkg.Root,
 		PkgObj:     pkg.Export,
 		Goroot:     pkg.Goroot,
+		// Module: pkg.Module,
 
 		GoFiles:      pkg.GoFiles,
 		CgoFiles:     pkg.CgoFiles,
@@ -110,6 +128,11 @@ func (pkg *jsonPackage) buildPackage() *build.Package {
 		bp.SrcRoot = filepath.Join(bp.Root, "src")
 		bp.PkgRoot = filepath.Join(bp.Root, "pkg")
 		bp.BinDir = filepath.Join(bp.Root, "bin")
+	} else if pkg.Module != nil {
+		log.Printf("PACKAGE HAS MODULE  INFO: %v\n", pkg.Module)
+		bp.Root = pkg.Module.Dir
+		log.Printf("  SETTING ROOT TO: %s", bp.Root)
+		log.Printf("  GO FILES: %s", bp.GoFiles)
 	}
 	return bp
 }
@@ -166,6 +189,14 @@ func (e *Extractor) listPackages(query ...string) ([]*jsonPackage, error) {
 		"-compiled",
 		"-json",
 		"--"}, query...)
+
+	fmt.Printf("CMD!!!!!!!!!!\n")
+	for _, arg := range args {
+		fmt.Printf("%s, ", arg)
+	}
+	fmt.Printf("\nENDCMD\n")
+
+
 	goTool := "go"
 	if e.BuildContext.GOROOT != "" {
 		goTool = filepath.Join(e.BuildContext.GOROOT, "bin/go")

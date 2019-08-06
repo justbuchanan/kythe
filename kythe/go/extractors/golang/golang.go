@@ -333,6 +333,16 @@ func (p *Package) Extract() error {
 	// Add required inputs from this package (source files of various kinds).
 	bp := p.BuildPackage
 	srcBase := bp.Dir
+	// bp.Root = "/usr/local/google/home/justinbuchanan"
+
+
+	root := bp.Root
+	if root == "" {
+		// root = bp.Module.Dir
+	}
+
+
+	log.Printf("SRC BASE = %s, ROOT = %s", srcBase, bp.Root)
 	p.addSource(cu, bp.Root, srcBase, bp.GoFiles)
 	p.addFiles(cu, bp.Root, srcBase, bp.CgoFiles)
 	p.addFiles(cu, bp.Root, srcBase, bp.CFiles)
@@ -466,6 +476,11 @@ func (p *Package) EachUnit(ctx context.Context, f func(*kindex.Compilation) erro
 // The digest will be the complete path as written -- this will be replaced
 // with the content digest in the fetcher.
 func (p *Package) addFiles(cu *apb.CompilationUnit, root, base string, names []string) {
+	fmt.Printf("addFiles(root=%s, base=%s, ", root, base)
+	for _,name := range names {
+		fmt.Printf("%s, ", name)
+	}
+	fmt.Printf(")\n")
 	for _, name := range names {
 		path := name
 		if base != "" {
