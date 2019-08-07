@@ -21,7 +21,7 @@
 //
 //   eg: indexer -i foo.cc -o foo.bin -- -DINDEXING
 //       indexer -i foo.cc | verifier foo.cc
-//       indexer some/index.kindex
+//       indexer some/index.kzip
 
 #include "absl/strings/str_format.h"
 #include "gflags/gflags.h"
