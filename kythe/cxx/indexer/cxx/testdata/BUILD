@@ -29,6 +29,7 @@ sh_test(
         "//kythe/cxx/indexer/cxx:indexer",
         "//kythe/cxx/tools:kindex_tool",
         "//kythe/cxx/verifier",
+        "//kythe/go/platform/tools/kzip",
     ],
 )
 
