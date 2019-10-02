@@ -236,6 +236,7 @@ type Ruleset struct {
 // success the package corresponding to unit is located via ImportPath in the
 // Packages map of the returned value.
 func Resolve(unit *apb.CompilationUnit, f Fetcher, opts *ResolveOptions) (*PackageInfo, error) {
+	log.Printf("@ Resolve(), unit vname = %v", unit.VName)
 	sourceFiles := stringset.New(unit.SourceFile...)
 
 	imap := make(map[string]*spb.VName)     // import path → vname
@@ -384,7 +385,7 @@ func Resolve(unit *apb.CompilationUnit, f Fetcher, opts *ResolveOptions) (*Packa
 		FakeImportC:              true, // so we can handle cgo
 		DisableUnusedImportCheck: true, // this is not fatal to type-checking
 		Importer: &packageImporter{
-			deps:    pi.Dependencies,
+			deps:    pi.Dependencies, /////////////////////////////////////////////////////////////////////////////
 			fileSet: pi.FileSet,
 			fileMap: fmap,
 			fetcher: f,

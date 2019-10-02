@@ -139,6 +139,8 @@ func indexGo(ctx context.Context, unit *apb.CompilationUnit, f indexer.Fetcher) 
 	if err != nil {
 		return err
 	}
+	log.Printf("@ indexGo(), pi = %v", pi)
+	log.Printf("@ indexGo(), pi.Dependencies = %v", pi.Dependencies)
 	if *verbose {
 		log.Printf("Finished resolving compilation: %s", pi.String())
 	}

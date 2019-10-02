@@ -135,7 +135,7 @@ func (pi *PackageInfo) Emit(ctx context.Context, sink Sink, opts *EmitOptions) e
 			case *ast.TypeSpec:
 				e.visitTypeSpec(n, stack)
 			case *ast.ImportSpec:
-				e.visitImportSpec(n, stack)
+				e.visitImportSpec(n, stack) ///////////////////////////////////////////////////////////////////////////////
 			case *ast.AssignStmt:
 				e.visitAssignStmt(n, stack)
 			case *ast.RangeStmt:
@@ -532,13 +532,16 @@ func (e *emitter) visitTypeSpec(spec *ast.TypeSpec, stack stackFunc) {
 func (e *emitter) visitImportSpec(spec *ast.ImportSpec, stack stackFunc) {
 	ipath, _ := strconv.Unquote(spec.Path.Value)
 	if vPath, ok := e.pi.Vendored[ipath]; ok {
+		log.Printf("@ visitImportSpec(), changing ipath from %q to %q", ipath, vPath)
 		ipath = vPath
 	}
+
+	log.Printf("@ visitImportSpec(), all deps = %v", e.pi.Dependencies)
 
 	pkg := e.pi.Dependencies[ipath]
 	target := e.pi.PackageVName[pkg]
 	if target == nil {
-		log.Printf("Unable to resolve import path %q", ipath)
+		log.Printf("Unable to resolve import path %q; pkg=%q", ipath,pkg)
 		return
 	}
 
