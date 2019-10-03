@@ -148,7 +148,9 @@ type packageImporter struct {
 // Import satisfies the types.Importer interface using the captured data from
 // the compilation unit.
 func (pi *packageImporter) Import(importPath string) (*types.Package, error) {
+	log.Printf("@ pi.Import(%s)",importPath)
 	if pkg := pi.deps[importPath]; pkg != nil && pkg.Complete() {
+		log.Printf("  found package in cache")
 		return pkg, nil
 	} else if importPath == "unsafe" {
 		// The "unsafe" package is special, and isn't usually added by the

@@ -377,6 +377,7 @@ func (p *Package) EachUnit(ctx context.Context, f func(cu *apb.CompilationUnit, 
 // The digest will be the complete path as written -- this will be replaced
 // with the content digest in the fetcher.
 func (p *Package) addFiles(cu *apb.CompilationUnit, root, base string, names []string) {
+	log.Printf("@ addFiles(cu={%v}, root=%s, base=%s, names=%v", cu,root,base,names)
 	for _, name := range names {
 		path := name
 		if base != "" {
@@ -388,6 +389,9 @@ func (p *Package) addFiles(cu *apb.CompilationUnit, root, base string, names []s
 			Path:   trimmed,
 		}
 
+		log.Printf("  before rules, vn={%v}",vn)
+
+		// Handle vname rules (if any)
 		var details []*anypb.Any
 		if p.ext.Rules != nil {
 			v2, ok := p.ext.Rules.Apply(trimmed)
