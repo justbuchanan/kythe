@@ -425,6 +425,7 @@ func (p *Package) addFiles(cu *apb.CompilationUnit, root, base string, names []s
 				vn.Root = components[0]
 			}
 		}
+        log.Printf("  after rules and default corpus, vn={%v}",vn)
 		cu.RequiredInput = append(cu.RequiredInput, &apb.CompilationUnit_FileInput{
 			VName: vn,
 			Info: &apb.FileInfo{
@@ -452,9 +453,12 @@ func (p *Package) addInput(cu *apb.CompilationUnit, bp *build.Package) {
 		p.seen.Add(obj)
 		p.addFiles(cu, bp.Root, "", []string{obj})
 
+		log.Printf("@ addInput()")
 		// Populate the vname for the input based on the corpus of the package.
 		fi := cu.RequiredInput[len(cu.RequiredInput)-1]
+		log.Printf("  vn from addFiles: {%v}", fi.VName)
 		fi.VName = p.ext.vnameFor(bp)
+		log.Printf("  vn from vnameFor: {%v}", fi.VName)
 
 		if govname.ImportPath(fi.VName, p.ext.BuildContext.GOROOT) != bp.ImportPath {
 			// Add GoPackageInfo if constructed VName differs from actual ImportPath.
