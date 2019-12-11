@@ -30,3 +30,12 @@ repeated_details_field {
         bool_field: true
     }
 }
+
+#- @repeated_details_field ref RepeatedDetailsField
+repeated_details_field {
+  type_url: "kythe.io/proto/kythe.proto.BuildDetails"
+  value: ""
+}
+
+#- ANY_VALUE=vname(_, _,"","external/com_google_protobuf/src/google/protobuf/any.proto",_).node/kind variable
+#- 

@@ -59,6 +59,7 @@ textproto_verifier_test(
         "any_type.proto",
     ],
     textproto = "any_type.pbtxt",
+    verifier_opts = ["--show_protos"],
     deps = ["@com_google_protobuf//:well_known_protos"],
 )
 

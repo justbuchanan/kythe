@@ -134,7 +134,7 @@ def textproto_verifier_test(
         proto_extract_kzip,
         name = name + "_protos_kzip",
         testonly = True,
-        srcs = protos,
+        srcs = protos ,
         tags = tags,
         opts = proto_extractor_opts,
         visibility = visibility,
