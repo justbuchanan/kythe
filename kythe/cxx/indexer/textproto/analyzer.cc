@@ -259,6 +259,7 @@ std::string ProtoMessageNameFromAnyTypeUrl(absl::string_view type_url) {
 Status TextprotoAnalyzer::AnalyzeAnyTypeUrl(
     const proto::VName& file_vname, const Descriptor& msg_descriptor,
     TextFormat::ParseLocation field_loc) {
+  LOG(ERROR) << "ANALYZE ANY : " << field_loc.line << "; " << field_loc.column;
   // Note that line is 1-indexed; a value of zero indicates an empty location.
   if (field_loc.line == 0) return OkStatus();
 
@@ -359,6 +360,7 @@ Status TextprotoAnalyzer::AnalyzeField(
 
   bool add_anchor_node = true;
   if (loc.line == 0) {
+    LOG(ERROR) << "loc.line == 0 for field: " << field.DebugString();
     // When AnalyzeField() is called for repeated fields or extensions, we know
     // the field was actually present in the input textproto. In the case of
     // repeated fields, the presence of only one location entry but multiple
@@ -419,6 +421,7 @@ Status TextprotoAnalyzer::AnalyzeField(
     const Descriptor& subdescriptor = *field.message_type();
 
     if (subdescriptor.full_name() == "google.protobuf.Any") {
+      LOG(ERROR) << "FOUND ANY in AnalyzeField!";
       // The location of the field is used to find the location of the Any type
       // url and add an anchor node.
       TextFormat::ParseLocation field_loc =

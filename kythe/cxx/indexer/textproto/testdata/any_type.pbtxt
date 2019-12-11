@@ -1,41 +1,13 @@
 # proto-file: any_type.proto
 # proto-message: any_type_test.Message
 
-#- @str_field ref StrField
-str_field: "testing..."
 
-#- @details_field ref DetailsField
-details_field: {
-    #- @"any_type_test.Message2" ref Message2
-    [type.googleapis.com/any_type_test.Message2] {
-        #- @bool_field ref BoolField
-        bool_field: true
-    }
-}
+#- ANY_VALUE=vname(_, _,"","external/com_google_protobuf/src/google/protobuf/any.proto",_).node/kind variable
 
-#- @repeated_details_field ref RepeatedDetailsField
-repeated_details_field: {
-    #- @"any_type_test.Message2" ref Message2
-    [type.googleapis.com/any_type_test.Message2] {
-        #- @bool_field ref BoolField
-        bool_field: true
-    }
-}
 
 #- @repeated_details_field ref RepeatedDetailsField
 repeated_details_field {
-    #- @"any_type_test.Message2" ref Message2
-    [  type.googleapis.com/any_type_test.Message2 ] {
-        #- @bool_field ref BoolField
-        bool_field: true
-    }
-}
-
-#- @repeated_details_field ref RepeatedDetailsField
-repeated_details_field {
-  type_url: "kythe.io/proto/kythe.proto.BuildDetails"
+  type_url: "type.googleapis.com/any_type_test.Message2"
   value: ""
 }
 
-#- ANY_VALUE=vname(_, _,"","external/com_google_protobuf/src/google/protobuf/any.proto",_).node/kind variable
-#- 
