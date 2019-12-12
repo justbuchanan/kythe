@@ -2,12 +2,14 @@
 # proto-message: any_type_test.Message
 
 
-#- ANY_VALUE=vname(_, _,"","external/com_google_protobuf/src/google/protobuf/any.proto",_).node/kind variable
+# ANY_VALUE=vname(_, _,"","external/com_google_protobuf/src/google/protobuf/any.proto",_).node/kind variable
 
 
 #- @repeated_details_field ref RepeatedDetailsField
 repeated_details_field {
+  #- @type_url ref vname("4.0.2.0", _,"","external/com_google_protobuf/src/google/protobuf/any.proto",_).node/kind variable
   type_url: "type.googleapis.com/any_type_test.Message2"
   value: ""
 }
 
+# 4.0.2.0, 4.0.2.1

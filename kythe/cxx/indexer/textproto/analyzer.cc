@@ -420,17 +420,17 @@ Status TextprotoAnalyzer::AnalyzeField(
             : reflection->GetRepeatedMessage(proto, &field, field_index);
     const Descriptor& subdescriptor = *field.message_type();
 
-    if (subdescriptor.full_name() == "google.protobuf.Any") {
-      LOG(ERROR) << "FOUND ANY in AnalyzeField!";
-      // The location of the field is used to find the location of the Any type
-      // url and add an anchor node.
-      TextFormat::ParseLocation field_loc =
-          add_anchor_node ? loc : TextFormat::ParseLocation{};
-      return AnalyzeAny(file_vname, submessage, subdescriptor, subtree,
-                        field_loc);
-    } else {
+    // if (subdescriptor.full_name() == "google.protobuf.Any") {
+    //   LOG(ERROR) << "FOUND ANY in AnalyzeField!";
+    //   // The location of the field is used to find the location of the Any type
+    //   // url and add an anchor node.
+    //   TextFormat::ParseLocation field_loc =
+    //       add_anchor_node ? loc : TextFormat::ParseLocation{};
+    //   return AnalyzeAny(file_vname, submessage, subdescriptor, subtree,
+    //                     field_loc);
+    // } else {
       return AnalyzeMessage(file_vname, submessage, subdescriptor, subtree);
-    }
+    // }
   }
 
   return OkStatus();
