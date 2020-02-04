@@ -171,30 +171,15 @@ func (e *extractor) fixup(unit *apb.CompilationUnit) error {
 // compileArgs records the build information extracted from the GoCompilePkg
 // action's argument list.
 type compileArgs struct {
-	original    []string          // the original args, as provided
-	srcs        []string          // source file to be compiled
-	deps        []string          // import paths of direct dependencies
-	tags        []string          // build tags to assert
-	importMap   map[string]string // import map for direct dependencies
-	outputPath  string            // output object file
-	packageList string            // file containing the list of standard library packages
-	include     []string          // additional include directories
-	importPath  string            // output package import path
-	trimPrefix  string            // prefix to trim from source paths
+	outputPath string // output object file
 }
 
 func parseCompileArgs(args []string) *compileArgs {
-	c := &compileArgs{
-		original:  args,
-		importMap: make(map[string]string),
-	}
+	c := &compileArgs{}
 
-	var tail []string // left-over non-flag arguments
 	flag := ""
-	for i, arg := range args {
+	for _, arg := range args {
 		if arg == "--" {
-			// An explicit "--" ends builder flag parsing.
-			tail = args[i+1:]
 			break
 		} else if flag == "" && strings.HasPrefix(arg, "-") {
 			// Record the name of a flag we want an argument for.
@@ -205,43 +190,8 @@ func parseCompileArgs(args []string) *compileArgs {
 		// At this point we have the argument for a flag.  These are the
 		// relevant flags from the toolchain's compile command.
 		switch flag {
-		case "dep":
-			c.deps = append(c.deps, arg)
-		case "importmap", "arc":
-			// Only record the mappings that change something.
-			ps := strings.SplitN(arg, "=", 2)
-			if len(ps) == 2 && ps[0] != ps[1] {
-				c.importMap[ps[0]] = ps[1]
-			}
 		case "o":
 			c.outputPath = arg
-		case "package_list":
-			c.packageList = arg
-		case "src":
-			c.srcs = append(c.srcs, arg)
-		case "tags":
-			c.tags = append(c.tags, arg)
-		}
-		flag = "" // reset
-	}
-
-	// Any remaining arguments are for consumption by the go tool.
-	// Pull out include paths and other useful stuff.
-	flag = ""
-	for _, arg := range tail {
-		if flag == "" && strings.HasPrefix(arg, "-") {
-			flag = strings.TrimLeft(arg, "-")
-			continue
-		}
-
-		// These are the relevant flags for the "go tool compile" command.
-		switch flag {
-		case "I":
-			c.include = append(c.include, arg)
-		case "p":
-			c.importPath = arg
-		case "trimpath":
-			c.trimPrefix = arg
 		}
 		flag = "" // reset
 	}
