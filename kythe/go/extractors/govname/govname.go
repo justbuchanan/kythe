@@ -21,7 +21,6 @@ package govname // import "kythe.io/kythe/go/extractors/govname"
 import (
 	"go/build"
 	"log"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -55,6 +54,11 @@ type PackageVNameOptions struct {
 	// Rules optionally provides a list of rules to apply to go package and file
 	// paths to customize output vnames. See the vnameutil package for details.
 	Rules vnameutil.Rules
+
+	// If set, file and package paths are made relative to this directory before
+	// applying vname rules (if any). If unset, the root is set to the module
+	// root (if using modules) or the gopath directory. TODO: double-check that last one.
+	RootDirectory string
 }
 
 // ForPackage returns a VName for a Go package.
@@ -97,24 +101,18 @@ type PackageVNameOptions struct {
 //		 Signature: "package",
 //   }
 func ForPackage(pkg *build.Package, opts *PackageVNameOptions) *spb.VName {
-	log.Printf("GOVNAME.ForPackage: {name=%v, dir=%v, importpath=%v}", pkg.Name, pkg.Dir, pkg.ImportPath)
-	log.Printf("  WHOLE PKG: %v", pkg)
-	log.Printf("GOVNAME.ForPackage OPTS: %v", opts)
+	// log.Printf("GOVNAME.ForPackage: {name=%v, dir=%v, importpath=%v}", pkg.Name, pkg.Dir, pkg.ImportPath)
+	// log.Printf("  WHOLE PKG: %v", pkg)
+	// log.Printf("GOVNAME.ForPackage OPTS: %v", opts)
 	if !pkg.Goroot && opts != nil && opts.Rules != nil {
-
-		relRoot := pkg.Root
-		a := os.Getenv("KYTHE_ROOT_DIRECTORY")
-		log.Printf("rel: %v",a)
-
-		if a != "" {
-			log.Printf("using KYTHE_ROOT_DIRECTORY")
-			relRoot = a
+		root := pkg.Root
+		if opts.RootDirectory != "" {
+			root = opts.RootDirectory
 		}
 
-
-		relpath, err := filepath.Rel(relRoot, pkg.Dir)
+		relpath, err := filepath.Rel(root, pkg.Dir)
 		if err != nil {
-			log.Fatalf("relativizing path %q against dir %q: %v", pkg.Dir, relRoot, err)
+			log.Fatalf("relativizing path %q against dir %q: %v", pkg.Dir, root, err)
 		}
 		if relpath == "." {
 			relpath = ""
