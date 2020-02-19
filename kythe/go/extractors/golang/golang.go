@@ -382,7 +382,18 @@ func (p *Package) addFiles(cu *apb.CompilationUnit, root, base string, names []s
 		if base != "" {
 			path = filepath.Join(base, name)
 		}
-		trimmed := strings.TrimPrefix(path, root+"/")
+
+
+		relRoot := root
+		a := os.Getenv("KYTHE_ROOT_DIRECTORY")
+		// log.Printf("rel: %v",a)
+		if a != "" {
+			log.Printf("addFiles(): using KYTHE_ROOT_DIRECTORY")
+			relRoot = a
+		}
+
+
+		trimmed := strings.TrimPrefix(path, relRoot+"/")
 		vn := &spb.VName{
 			Corpus: p.ext.DefaultCorpus,
 			Path:   trimmed,

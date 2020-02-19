@@ -21,6 +21,7 @@ package govname // import "kythe.io/kythe/go/extractors/govname"
 import (
 	"go/build"
 	"log"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -96,20 +97,38 @@ type PackageVNameOptions struct {
 //		 Signature: "package",
 //   }
 func ForPackage(pkg *build.Package, opts *PackageVNameOptions) *spb.VName {
+	log.Printf("GOVNAME.ForPackage: {name=%v, dir=%v, importpath=%v}", pkg.Name, pkg.Dir, pkg.ImportPath)
+	log.Printf("  WHOLE PKG: %v", pkg)
+	log.Printf("GOVNAME.ForPackage OPTS: %v", opts)
 	if !pkg.Goroot && opts != nil && opts.Rules != nil {
-		relpath, err := filepath.Rel(pkg.Root, pkg.Dir)
+
+		relRoot := pkg.Root
+		a := os.Getenv("KYTHE_ROOT_DIRECTORY")
+		log.Printf("rel: %v",a)
+
+		if a != "" {
+			log.Printf("using KYTHE_ROOT_DIRECTORY")
+			relRoot = a
+		}
+
+
+		relpath, err := filepath.Rel(relRoot, pkg.Dir)
 		if err != nil {
-			log.Fatalf("relativizing path %q against dir %q: %v", pkg.Dir, pkg.Root, err)
+			log.Fatalf("relativizing path %q against dir %q: %v", pkg.Dir, relRoot, err)
 		}
 		if relpath == "." {
 			relpath = ""
 		}
 
+		log.Printf("GOVNAME.ForPackage applying rules to relpath: %q", relpath)
 		v2, ok := opts.Rules.Apply(relpath)
 		if ok {
 			v2.Language = Language
 			v2.Signature = packageSig
+			log.Printf("GOVNAME.ForPackage applied rules to get new vname: %q", v2)
 			return v2
+		} else {
+			log.Printf("GOVNAME.ForPackage FAILED applying rules to relpath: %q", relpath)
 		}
 	}
 
