@@ -78,14 +78,14 @@ public abstract class AbstractJavacWrapper {
       if (!passThroughIfAnalysisOnly(args)) {
         String vnamesConfig = System.getenv("KYTHE_VNAMES");
         JavaCompilationUnitExtractor extractor;
+        String corpus = readEnvironmentVariable("KYTHE_CORPUS", DEFAULT_CORPUS);
         if (Strings.isNullOrEmpty(vnamesConfig)) {
-          String corpus = readEnvironmentVariable("KYTHE_CORPUS", DEFAULT_CORPUS);
           extractor =
               new JavaCompilationUnitExtractor(
                   corpus, readEnvironmentVariable("KYTHE_ROOT_DIRECTORY"));
         } else {
           extractor =
-              new JavaCompilationUnitExtractor(
+              new JavaCompilationUnitExtractor(corpus,
                   FileVNames.fromFile(vnamesConfig),
                   readEnvironmentVariable("KYTHE_ROOT_DIRECTORY"));
         }
