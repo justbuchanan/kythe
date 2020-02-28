@@ -12,17 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM gcr.io/cloud-builders/bazel
+# FROM gcr.io/cloud-builders/bazel
+# FROM ubuntu:18.04
+FROM debian:buster
 
-# Install C++ compilers for cc_* rule support.
+# # Install C++ compilers for cc_* rule support.
+# RUN apt-get update && \
+#     apt-get upgrade -y && \
+#     apt-get install -y build-essential gcc clang-6.0 && \
+#     apt-get clean
+
+# # Create clang symlinks
+# RUN ln -s /usr/bin/clang-6.0 /usr/bin/clang && \
+#     ln -s /usr/bin/clang++-6.0 /usr/bin/clang++
+
 RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install -y gcc clang-6.0 && \
+    apt-get install -y g++ && \
     apt-get clean
 
-# Create clang symlinks
-RUN ln -s /usr/bin/clang-6.0 /usr/bin/clang && \
-    ln -s /usr/bin/clang++-6.0 /usr/bin/clang++
 
 # Extract the Kythe release archive to /kythe
 COPY kythe/release/kythe-v*.tar.gz /tmp/
@@ -38,5 +45,20 @@ ADD kythe/release/base/fix_permissions.sh /kythe/
 # Bazelisk
 ADD external/com_github_bazelbuild_bazelisk/linux_amd64_stripped/bazelisk /kythe/
 
+# copied from gcr.io bazel image
+# Store the Bazel outputs under /workspace so that the symlinks under bazel-bin
+# (et al) are accessible to downstream build steps.
+RUN mkdir -p /workspace
+RUN echo 'startup --output_base=/workspace/.bazel' > ~/.bazelrc
 
-ENTRYPOINT ["/kythe/extract.sh"]
+RUN apt-get install -y git libeigen3-dev
+
+ENV KYTHE_OUTPUT_DIRECTORY=/tmp/kythe
+
+WORKDIR /workspace
+RUN git clone https://github.com/justbuchanan/kythe_bazel_demo
+WORKDIR /workspace/kythe_bazel_demo
+
+# RUN /kythe/extract.sh build //...
+
+# ENTRYPOINT ["/kythe/extract.sh"]
