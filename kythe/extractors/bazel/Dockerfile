@@ -26,6 +26,21 @@ FROM debian:buster
 # RUN ln -s /usr/bin/clang-6.0 /usr/bin/clang && \
 #     ln -s /usr/bin/clang++-6.0 /usr/bin/clang++
 
+
+
+# TODO add backports for clang 8
+# apt install clang-8
+
+# echo 'build --client_env=CC=/usr/bin/clang-8' >>~/.bazelrc
+
+RUN ln -s /usr/bin/clang-8 /usr/bin/clang
+RUN ln -s /usr/bin/clang++-8 /usr/bin/clang++
+
+# root@7894e49658c0:/workspace/kythe_bazel_demo# apt install -t buster-backports "libstdc\+\+-8-dev"
+
+# apt install libc++-8-dev
+
+
 RUN apt-get update && \
     apt-get install -y g++ && \
     apt-get clean
