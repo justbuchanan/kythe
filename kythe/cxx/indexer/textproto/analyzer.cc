@@ -147,21 +147,16 @@ class TextprotoAnalyzer {
   absl::optional<proto::VName> VNameForRelPath(
       absl::string_view simplified_path) const;
 
+  // TODO: delete this
   template <typename SomeDescriptor>
   StatusOr<proto::VName> VNameForDescriptor(const SomeDescriptor* descriptor) {
-    absl::Status vname_lookup_status = absl::OkStatus();
-    proto::VName vname = ::kythe::lang_proto::VNameForDescriptor(
-        descriptor, [this, &vname_lookup_status](const std::string& path) {
+    return ::kythe::lang_proto::VNameForDescriptor(
+        descriptor, [this](absl::string_view path) -> StatusOr<proto::VName> {
           auto v = VNameForRelPath(path);
-          if (!v.has_value()) {
-            vname_lookup_status = absl::UnknownError(
-                absl::StrCat("Unable to lookup vname for rel path: ", path));
-            return proto::VName();
-          }
-          return *v;
+          if (v.has_value()) return *v;
+          return absl::NotFoundError(
+              absl::StrCat("Unable to find vname for file: ", path));
         });
-    return vname_lookup_status.ok() ? StatusOr<proto::VName>(vname)
-                                    : vname_lookup_status;
   }
 
   const proto::CompilationUnit* unit_;

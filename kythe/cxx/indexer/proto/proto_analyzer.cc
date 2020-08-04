@@ -51,7 +51,7 @@ bool ProtoAnalyzer::AnalyzeFile(const std::string& rel_path,
                                 const VName& v_name,
                                 const std::string& content) {
   google::protobuf::DescriptorPool pool(descriptor_db_);
-  ProtoGraphBuilder builder(recorder_, [&](const std::string& path) {
+  ProtoGraphBuilder builder(recorder_, [&](absl::string_view path) {
     return VNameFromRelPath(path);
   });
 
@@ -103,14 +103,13 @@ bool ProtoAnalyzer::Parse(const std::string& proto_file,
   return AnalyzeFile(proto_file, VNameFromFullPath(proto_file), content);
 }
 
-VName ProtoAnalyzer::VNameFromRelPath(
-    const std::string& simplified_path) const {
-  std::string full_path = FindWithDefault(*path_substitution_cache_,
-                                          simplified_path, simplified_path);
+VName ProtoAnalyzer::VNameFromRelPath(absl::string_view simplified_path) const {
+  std::string sp(simplified_path.data(), simplified_path.size());
+  std::string full_path = FindWithDefault(*path_substitution_cache_, sp, sp);
   return VNameFromFullPath(full_path);
 }
 
-VName ProtoAnalyzer::VNameFromFullPath(const std::string& path) const {
+VName ProtoAnalyzer::VNameFromFullPath(absl::string_view path) const {
   for (const auto& input : unit_->required_input()) {
     if (input.info().path() == path) {
       return input.v_name();

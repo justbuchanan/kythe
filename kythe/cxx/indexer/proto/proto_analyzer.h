@@ -22,6 +22,7 @@
 
 #include "absl/container/flat_hash_map.h"
 #include "absl/container/node_hash_set.h"
+#include "absl/strings/string_view.h"
 #include "glog/logging.h"
 #include "google/protobuf/descriptor.h"
 #include "google/protobuf/descriptor_database.h"
@@ -66,14 +67,14 @@ class ProtoAnalyzer {
   // (for example, a bazel-out/ subdirectory) needed to properly and fully
   // reference the true storage location.  If there is no such prefix path,
   // then the input path is simply returned.
-  proto::VName VNameFromRelPath(const std::string& simplified_path) const;
+  proto::VName VNameFromRelPath(absl::string_view simplified_path) const;
 
  private:
   absl::node_hash_set<std::string> visited_files_;
 
   // Returns the VName associated with `path` in unit_'s required inputs, or
   // a VName created from file_vnames_ if none is found.
-  proto::VName VNameFromFullPath(const std::string& path) const;
+  proto::VName VNameFromFullPath(absl::string_view path) const;
 
   // Compilation unit to be analyzed.
   const proto::CompilationUnit* unit_;

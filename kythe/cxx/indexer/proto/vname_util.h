@@ -24,6 +24,7 @@
 #include "google/protobuf/io/printer.h"
 #include "google/protobuf/io/zero_copy_stream_impl_lite.h"
 #include "kythe/cxx/common/protobuf_metadata_file.h"
+#include "kythe/cxx/common/status_or.h"
 
 namespace kythe {
 namespace lang_proto {
@@ -37,28 +38,36 @@ namespace lang_proto {
 /// directories in the proto compiler's search path (specified with the
 /// --proto_path flag). The relative path should first be resolved to a full
 /// path before generating the file VName to ensure that it is stable.
+
+// TODO: varname
+using FileVNameLookupFunc =
+    std::function<StatusOr<proto::VName>(absl::string_view)>;
+
 template <typename SomeDescriptor>
-proto::VName VNameForDescriptor(
+StatusOr<proto::VName> VNameForDescriptor(
     const SomeDescriptor* descriptor,
-    const std::function<proto::VName(const std::string&)>& vname_for_rel_path) {
-  proto::VName vname;
+    const FileVNameLookupFunc& vname_for_rel_path) {
   class PathSink : public ::google::protobuf::io::AnnotationCollector {
    public:
-    PathSink(const std::function<proto::VName(const std::string&)>&
-                 vname_for_rel_path,
-             proto::VName* vname)
-        : vname_for_rel_path_(vname_for_rel_path), vname_(vname) {}
+    PathSink(const FileVNameLookupFunc& vname_for_rel_path)
+        : vname_for_rel_path_(vname_for_rel_path) {}
 
     void AddAnnotation(size_t begin_offset, size_t end_offset,
                        const std::string& file_path,
                        const std::vector<int>& path) override {
-      *vname_ = VNameForProtoPath(vname_for_rel_path_(file_path), path);
+      auto file_vname = vname_for_rel_path_(file_path);
+      if (file_vname.ok()) {
+        result = VNameForProtoPath(*file_vname, path);
+      } else {
+        result = file_vname.status();
+      }
     }
 
+    StatusOr<proto::VName> result = absl::UnknownError("Failed to find??????");
+
    private:
-    const std::function<proto::VName(const std::string&)>& vname_for_rel_path_;
-    proto::VName* vname_;
-  } path_sink(vname_for_rel_path, &vname);
+    const FileVNameLookupFunc& vname_for_rel_path_;
+  } path_sink(vname_for_rel_path);
   // We'd really like to use GetLocationPath here, but it's private, so
   // we have to go through some contortions. On the plus side, this is the
   // *exact* same code that protoc backends use for writing out annotations,
@@ -68,7 +77,7 @@ proto::VName VNameForDescriptor(
   ::google::protobuf::io::Printer printer(&stream, '$', &path_sink);
   printer.Print("$0$", "0", "0");
   printer.Annotate("0", descriptor);
-  return vname;
+  return path_sink.result;
 }
 
 }  // namespace lang_proto

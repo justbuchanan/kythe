@@ -23,6 +23,7 @@
 #include <utility>
 #include <vector>
 
+#include "absl/strings/string_view.h"
 #include "glog/logging.h"
 #include "google/protobuf/io/printer.h"
 #include "google/protobuf/io/zero_copy_stream_impl_lite.h"
@@ -57,7 +58,7 @@ class ProtoGraphBuilder {
   // relative (to the file under analysis) path.
   ProtoGraphBuilder(
       KytheGraphRecorder* recorder,
-      std::function<proto::VName(const std::string&)> vname_for_rel_path)
+      std::function<proto::VName(absl::string_view)> vname_for_rel_path)
       : recorder_(recorder),
         vname_for_rel_path_(std::move(vname_for_rel_path)) {}
 
@@ -70,8 +71,16 @@ class ProtoGraphBuilder {
   // hierarchy, so we're stuck with a template.
   template <typename SomeDescriptor>
   proto::VName VNameForDescriptor(const SomeDescriptor* descriptor) {
-    return ::kythe::lang_proto::VNameForDescriptor(descriptor,
-                                                   vname_for_rel_path_);
+    auto vname = ::kythe::lang_proto::VNameForDescriptor(
+        descriptor, [this](absl::string_view path) -> StatusOr<proto::VName> {
+          proto::VName v = vname_for_rel_path_(path);
+          return v;
+        });
+    if (!vname.ok()) {
+      // LOG(ERROR) << "Failed to get vname for descriptor"
+      return proto::VName{};
+    }
+    return *vname;
   }
 
   // Sets the source text for this file.
@@ -158,7 +167,7 @@ class ProtoGraphBuilder {
   KytheGraphRecorder* recorder_;
 
   // A function to resolve relative paths to VNames.
-  std::function<proto::VName(const std::string&)> vname_for_rel_path_;
+  std::function<proto::VName(absl::string_view)> vname_for_rel_path_;
 
   // The text of the current file being analyzed.
   std::string current_file_contents_;

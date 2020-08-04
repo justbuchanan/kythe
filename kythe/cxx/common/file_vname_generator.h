@@ -22,6 +22,7 @@
 #include <vector>
 
 #include "kythe/proto/storage.pb.h"
+#include "absl/strings/string_view.h"
 #include "re2/re2.h"
 
 namespace kythe {
@@ -39,10 +40,10 @@ class FileVNameGenerator {
 
   /// \brief Returns a base VName for a given file path (or an empty VName if
   /// no configuration rule matches the path).
-  kythe::proto::VName LookupBaseVName(const std::string& path) const;
+  kythe::proto::VName LookupBaseVName(absl::string_view path) const;
 
   /// \brief Returns a VName for the given file path.
-  kythe::proto::VName LookupVName(const std::string& path) const;
+  kythe::proto::VName LookupVName(absl::string_view path) const;
 
   /// \brief Sets the default base VName to use when no rules match.
   void set_default_base_vname(const kythe::proto::VName& default_vname) {

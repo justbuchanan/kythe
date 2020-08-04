@@ -84,7 +84,7 @@ bool FileVNameGenerator::ParseRule(const std::string& rule, int max_capture,
 }
 
 kythe::proto::VName FileVNameGenerator::LookupBaseVName(
-    const std::string& path) const {
+    absl::string_view path) const {
   re2::StringPiece argv[kMaxRegexArgs];
   RE2::Arg args[kMaxRegexArgs];
   RE2::Arg* arg_pointers[kMaxRegexArgs];
@@ -97,7 +97,7 @@ kythe::proto::VName FileVNameGenerator::LookupBaseVName(
     // RE2 will fail to match if we provide more args than there are captures
     // for a given regex.
     int capture_groups = rule.pattern->NumberOfCapturingGroups();
-    if (RE2::FullMatchN(path, *rule.pattern, arg_pointers, capture_groups)) {
+    if (RE2::FullMatchN(re2::StringPiece(path.data(), path.size()), *rule.pattern, arg_pointers, capture_groups)) {
       kythe::proto::VName result;
       if (!rule.corpus.empty()) {
         result.set_corpus(ApplyRule(rule.corpus, argv, capture_groups));
@@ -115,10 +115,10 @@ kythe::proto::VName FileVNameGenerator::LookupBaseVName(
 }
 
 kythe::proto::VName FileVNameGenerator::LookupVName(
-    const std::string& path) const {
+    absl::string_view path) const {
   kythe::proto::VName vname = LookupBaseVName(path);
   if (vname.path().empty()) {
-    vname.set_path(path);
+    vname.set_path(path.data(), path.size());
   }
   return vname;
 }
