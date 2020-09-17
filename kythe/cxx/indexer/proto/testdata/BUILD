@@ -13,6 +13,19 @@ proto_verifier_test(
 )
 
 proto_verifier_test(
+    name = "options",
+    srcs = ["basic/options.proto",
+    ],deps=[
+        "@com_google_protobuf//:well_known_protos",
+    ],
+    extractor_opts = [
+        "--proto_path",
+        "external/com_google_protobuf/src",
+    ],
+    tags = ["basic"],
+)
+
+proto_verifier_test(
     name = "default_values",
     srcs = ["basic/default-value.proto"],
     tags = ["basic"],

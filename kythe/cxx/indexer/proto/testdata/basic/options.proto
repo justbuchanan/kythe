@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package proto_kythe_test;
+
+import "google/protobuf/descriptor.proto";
+
+message Metadata {
+  string label = 1;
+}
+
+extend google.protobuf.EnumValueOptions {
+  Metadata metadata = 69945;
+}
+
+enum MyEnum {
+  UNKNOWN = 0;
+
+  ABS = 1 [(metadata).label = "abs"];
+}
