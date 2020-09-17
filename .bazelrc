@@ -1,6 +1,8 @@
 # Remote Build Execution requires a strong hash function, such as SHA256.
 startup --host_jvm_args=-Dbazel.DigestFunction=SHA256
 
+build --features=-layering_check
+
 # Disable persistent workers for Typescript (#3816)
 build --strategy=TypeScriptCompile=sandboxed,local
 

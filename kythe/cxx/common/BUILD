@@ -1,6 +1,6 @@
 package(
     default_visibility = ["//kythe:default_visibility"],
-    features = ["layering_check"],
+    features = ["-layering_check"],
 )
 
 licenses(["notice"])

@@ -1,4 +1,4 @@
-package(features = ["layering_check"])
+package(features = ["-layering_check"])
 
 cc_library(
     name = "proto_graph_builder",

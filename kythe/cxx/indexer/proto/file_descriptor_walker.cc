@@ -240,6 +240,7 @@ void FileDescriptorWalker::InitializeLocation(const std::vector<int>& span,
 
 void FileDescriptorWalker::BuildLocationMap(
     const SourceCodeInfo& source_code_info) {
+  // LOG(ERROR) << "Got source code info: " << source_code_info.DebugString();
   for (int i = 0; i < source_code_info.location_size(); i++) {
     const SourceCodeInfo::Location& location = source_code_info.location(i);
     std::vector<int> path(location.path().begin(), location.path().end());
@@ -324,11 +325,24 @@ void FileDescriptorWalker::VisitField(const std::string* parent_name,
   AddComments(v_name, lookup_path);
 
   {
+    LOG(ERROR) << "VisitField() looking for options field of: " << field->DebugString();
+    LOG(ERROR) << "options = " << field->options().DebugString();
     // Get location of declaration and add as Grok binding
-    ScopedLookup name_num(&lookup_path, FieldDescriptorProto::kNameFieldNumber);
+    ScopedLookup name_num(&lookup_path, FieldDescriptorProto::kOptionsFieldNumber);
     const std::vector<int>& span = location_map_[lookup_path];
+    // CHECK(!span.empty());
+    if (span.empty()) return;
     Location location;
     InitializeLocation(span, &location);
+
+    for (auto& kv : location_map_[lookup_path]) {
+      LOG(ERROR) << "location map entry: " << kv;
+    }
+
+
+    // ScopedLookup opts_look()
+
+
 
     VName oneof;
     bool in_oneof = false;
@@ -420,6 +434,8 @@ void FileDescriptorWalker::VisitFields(const std::string& message_name,
     ScopedLookup field_num(&lookup_path, DescriptorProto::kFieldFieldNumber);
     for (int i = 0; i < dp->field_count(); i++) {
       ScopedLookup field_index(&lookup_path, i);
+
+      LOG(ERROR)<< "VisitFields() looking at field: " << dp->field(i)->DebugString();
 
       VisitField(&message_name, &message, message_name, message, dp->field(i),
                  lookup_path);
@@ -625,14 +641,22 @@ void FileDescriptorWalker::VisitEnumValues(const EnumDescriptor* dp,
   for (int j = 0; j < dp->value_count(); j++) {
     const EnumValueDescriptor* val_dp = dp->value(j);
 
+    LOG(ERROR) << "looking at enum val: " << val_dp->DebugString();
+    LOG(ERROR) << "  has opts: " << val_dp->options().DebugString();
+
+
     ScopedLookup value_index(&lookup_path, j);
     VName v_name = builder_->VNameForDescriptor(val_dp);
     AddComments(v_name, lookup_path);
 
+
+
+
     ScopedLookup name_num(&lookup_path,
-                          EnumValueDescriptorProto::kNameFieldNumber);
+                          FieldDescriptorProto::kOptionsFieldNumber);
     Location value_location;
     InitializeLocation(location_map_[lookup_path], &value_location);
+    // LOG(ERROR) << "looked up path for options of enum field. vname=" << value_location.file.DebugString() << "; range=" << value_location.begin << "-" << value_location.end;
 
     builder_->AddValueToEnum(*enum_node, v_name, value_location);
     if (val_dp->options().deprecated()) {
@@ -656,6 +680,8 @@ void FileDescriptorWalker::VisitAllFields(const std::string* ns_name,
       if (ns_name != nullptr) {
         vname = *ns_name + "." + vname;
       }
+
+      LOG(ERROR) << "VisitAllFields looking at msg descriptor: " << dp->DebugString();
 
       ScopedLookup message_index(&lookup_path, i);
 
