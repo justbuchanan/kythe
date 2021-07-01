@@ -80,6 +80,11 @@ func (a *Accumulator) Accumulate(u *kzip.Unit) {
 	var srcCorpora stringset.Set
 	srcsWithRI := stringset.New()
 	for _, ri := range u.Proto.RequiredInput {
+		if strings.StartsWith(ri.GetVName().GetPath(), "/") {
+			log.Printf("Found abs path in vname: %q", ri.GetVName().GetPath())
+			ri.AbsPathCount++
+		}
+
 		riCorpus := requiredInputCorpus(u, ri)
 		if riCorpus == "" {
 			// Trim spaces to work around the fact that log("%v", proto) is inconsistent about trailing spaces in google3 vs open-source go.
@@ -168,6 +173,7 @@ func MergeKzipInfo(infos []*apb.KzipInfo) *apb.KzipInfo {
 		}
 		kzipInfo.CriticalKzipErrors = append(kzipInfo.GetCriticalKzipErrors(), i.GetCriticalKzipErrors()...)
 		kzipInfo.Size += i.Size
+		kzipInfo.AbsPathCount += i.AbsPathCount
 	}
 	return kzipInfo
 }
