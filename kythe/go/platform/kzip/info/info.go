@@ -82,7 +82,7 @@ func (a *Accumulator) Accumulate(u *kzip.Unit) {
 	for _, ri := range u.Proto.RequiredInput {
 		if strings.StartsWith(ri.GetVName().GetPath(), "/") {
 			log.Printf("Found abs path in vname: %q", ri.GetVName().GetPath())
-			ri.AbsPathCount++
+			a.KzipInfo.AbsPathCount++
 		}
 
 		riCorpus := requiredInputCorpus(u, ri)
